@@ -50,13 +50,13 @@ public class EarthquakeCityMap extends PApplet {
 	//feed with magnitude 2.5+ Earthquakes
 	private String earthquakesURL = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_week.atom";
 
-	final private int yellow = color(255,255,0);
-	final private int red = color(255,0,0);
-	final private int blue = color(0,0,255);
+	public final int YELLOW = color(255,255,0);
+	public final int RED = color(255,0,0);
+	public final int BLUE = color(0,0,255);
 	
-	final private float yellow_radius = 10.0f;
-	final private float red_radius = 7.0f;
-	final private float blue_radius = 4.0f;
+	public final float YELLOW_RADIUS = 10.0f;
+	public final float RED_RADIUS = 7.0f;
+	public final float BLUE_RADIUS = 4.0f;
 	
 	public void setup() {
 		size(950, 600, OPENGL);
@@ -81,17 +81,17 @@ public class EarthquakeCityMap extends PApplet {
 	    for (PointFeature f: earthquakes) {
 	    		SimplePointMarker mk = new SimplePointMarker(f.getLocation(), f.getProperties());
 	    		float mag = (float)f.getProperty("magnitude");
-	    		if (mag < 4.0f) {
-	    			mk.setRadius(blue_radius);
-	    			mk.setColor(blue);
+	    		if (mag < THRESHOLD_LIGHT) {
+	    			mk.setRadius(BLUE_RADIUS);
+	    			mk.setColor(BLUE);
 	    		}
-	    		else if (mag >= 4.0 && mag <= 5.0) {
-	    			mk.setRadius(red_radius);
-	    			mk.setColor(red);
+	    		else if (mag >= THRESHOLD_LIGHT && mag <= THRESHOLD_MODERATE) {
+	    			mk.setRadius(RED_RADIUS);
+	    			mk.setColor(RED);
 	    		}
 	    		else {
-	    			mk.setRadius(yellow_radius);
-	    			mk.setColor(yellow);
+	    			mk.setRadius(YELLOW_RADIUS);
+	    			mk.setColor(YELLOW);
 	    		}
 	    		markers.add(mk);
 	    }
@@ -111,9 +111,9 @@ public class EarthquakeCityMap extends PApplet {
 		// Remember you can use Processing's graphics methods here
 		fill(255); rect(25, 50, 150, 100);
 		
-		fill(yellow); ellipse(40, 75, yellow_radius, yellow_radius);
-		fill(red); ellipse(40, 105, red_radius, red_radius);
-		fill(blue); ellipse(40, 135, blue_radius, blue_radius);
+		fill(YELLOW); ellipse(40, 75, YELLOW_RADIUS, YELLOW_RADIUS);
+		fill(RED); ellipse(40, 105, RED_RADIUS, RED_RADIUS);
+		fill(BLUE); ellipse(40, 135, BLUE_RADIUS, BLUE_RADIUS);
 		
 		fill(0);
 		text("5.0+ Magnitude", 50, 80);
