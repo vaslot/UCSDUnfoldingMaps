@@ -7,7 +7,7 @@ import processing.core.PGraphics;
 /** Implements a visual marker for earthquakes on an earthquake map
  * 
  * @author UC San Diego Intermediate Software Development MOOC team
- * @author Your name here
+ * @author Vishal Aslot
  *
  */
 public abstract class EarthquakeMarker extends SimplePointMarker
@@ -47,6 +47,7 @@ public abstract class EarthquakeMarker extends SimplePointMarker
 	public EarthquakeMarker (PointFeature feature) 
 	{
 		super(feature.getLocation());
+		
 		// Add a radius property and then set the properties
 		java.util.HashMap<String, Object> properties = feature.getProperties();
 		float magnitude = Float.parseFloat(properties.get("magnitude").toString());

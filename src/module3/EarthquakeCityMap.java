@@ -80,7 +80,7 @@ public class EarthquakeCityMap extends PApplet {
 	    List<PointFeature> earthquakes = ParseFeed.parseEarthquake(this, earthquakesURL);
 	    for (PointFeature f: earthquakes) {
 	    		SimplePointMarker mk = new SimplePointMarker(f.getLocation(), f.getProperties());
-	    		float mag = (float)f.getProperty("magnitude");
+	    		float mag = Float.parseFloat(f.getProperty("magnitude").toString());
 	    		if (mag < THRESHOLD_LIGHT) {
 	    			mk.setRadius(BLUE_RADIUS);
 	    			mk.setColor(BLUE);

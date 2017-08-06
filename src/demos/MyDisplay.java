@@ -23,6 +23,8 @@ public class MyDisplay extends PApplet {
 	{
 		fill(255, 255, 0);
 		ellipse(200, 200, 390, 390);
+		triangle(200,192,191,208,209,208);
+		point(200,200);
 		fill(0, 0, 0);
 		ellipse(120, 130, 50, 70);
 		ellipse(280, 130, 50, 70);

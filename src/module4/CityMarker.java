@@ -9,7 +9,7 @@ import processing.core.PGraphics;
 /** Implements a visual marker for cities on an earthquake map
  * 
  * @author UC San Diego Intermediate Software Development MOOC team
- * @author Your name here
+ * @author Vishal Aslot
  *
  */
 public class CityMarker extends SimplePointMarker {
@@ -42,7 +42,11 @@ public class CityMarker extends SimplePointMarker {
 		// Save previous drawing style
 		pg.pushStyle();
 		
-		// TODO: Add code to draw a triangle to represent the CityMarker
+		// (x,y) is the Centroid of an equilateral triangle
+		// Based on it, compute the approx. points for the 3 triangle points
+		double side = 2*TRI_SIZE;
+		float off = (float)(Math.sqrt(side*side - TRI_SIZE*TRI_SIZE) / 2.0);
+		pg.triangle(x, y-off, x-TRI_SIZE, y+off, x+TRI_SIZE, y+off);
 		
 		// Restore previous drawing style
 		pg.popStyle();
