@@ -15,6 +15,9 @@ public abstract class EarthquakeMarker extends SimplePointMarker
 	
 	// Did the earthquake occur on land?  This will be set by the subclasses.
 	protected boolean isOnLand;
+	
+	// When did this earthquake happen (Past Hour, Past Day, Past Week, Past Month)
+	private String age;
 
 	// SimplePointMarker has a field "radius" which is inherited
 	// by Earthquake marker:
@@ -54,6 +57,9 @@ public abstract class EarthquakeMarker extends SimplePointMarker
 		properties.put("radius", 2*magnitude );
 		setProperties(properties);
 		this.radius = 1.75f*getMagnitude();
+		
+		// Add an age property to the set of properties
+		this.age = properties.get("age").toString();
 	}
 	
 
@@ -68,7 +74,12 @@ public abstract class EarthquakeMarker extends SimplePointMarker
 		// call abstract method implemented in child class to draw marker shape
 		drawEarthquake(pg, x, y);
 		
-		// OPTIONAL TODO: draw X over marker if within past day		
+		// draw X over marker if within past day	
+		if (age.equalsIgnoreCase("Past Day")) {
+			pg.stroke(0);
+			pg.line(x-radius/2.0f, y-radius/2.0f, x+radius/2.0f, y+radius/2.0f);
+			pg.line(x+radius/2.0f, y-radius/2.0f, x-radius/2.0f, y+radius/2.0f);
+		}
 		
 		// reset to previous styling
 		pg.popStyle();
@@ -80,7 +91,17 @@ public abstract class EarthquakeMarker extends SimplePointMarker
 	// But this is up to you, of course.
 	// You might find the getters below helpful.
 	private void colorDetermine(PGraphics pg) {
-		//TODO: Implement this method
+		float depth = getDepth();
+		
+		if (depth >= 0 && depth <= 70) {
+				pg.fill(255,255,0);
+		}
+		else if (depth > 70 && depth <= 300) {
+				pg.fill(0,0,255);
+		}
+		else {
+				pg.fill(255,0,0);
+		}
 	}
 	
 	

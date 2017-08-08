@@ -42,6 +42,10 @@ public class CityMarker extends SimplePointMarker {
 		// Save previous drawing style
 		pg.pushStyle();
 		
+		// Fill the triangles with the maroon color and black border
+		pg.fill(128,0,0);
+		pg.stroke(0, 0, 0);
+		
 		// (x,y) is the Centroid of an equilateral triangle
 		// Based on it, compute the approx. points for the 3 triangle points
 		double side = 2*TRI_SIZE;

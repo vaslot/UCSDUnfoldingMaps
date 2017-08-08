@@ -79,7 +79,7 @@ public class EarthquakeCityMap extends PApplet {
 			// map = new UnfoldingMap(this, 200, 50, 650, 600, new Google.GoogleMapProvider());
 			map = new UnfoldingMap(this, 200, 50, 650, 600, new Microsoft.RoadProvider());
 			// IF YOU WANT TO TEST WITH A LOCAL FILE, uncomment the next line
-		    // earthquakesURL = "2.5_week.atom";
+		    earthquakesURL = "2.5_week.atom";
 		}
 		MapUtils.createDefaultEventDispatcher(this, map);
 		
@@ -108,7 +108,7 @@ public class EarthquakeCityMap extends PApplet {
 	    List<PointFeature> earthquakes = ParseFeed.parseEarthquake(this, earthquakesURL);
 	    quakeMarkers = new ArrayList<Marker>();
 	    
-	    for(PointFeature feature : earthquakes) {
+	    for(PointFeature feature : earthquakes) { 	   
 		  //check if LandQuake
 		  if(isLand(feature)) {
 		    quakeMarkers.add(new LandQuakeMarker(feature));
@@ -143,24 +143,45 @@ public class EarthquakeCityMap extends PApplet {
 	private void addKey() {	
 		// Remember you can use Processing's graphics methods here
 		fill(255, 250, 240);
-		rect(25, 50, 150, 250);
+		rect(25, 50, 150, 200);
 		
 		fill(0);
 		textAlign(LEFT, CENTER);
 		textSize(12);
 		text("Earthquake Key", 50, 75);
 		
-		fill(color(255, 0, 0));
-		ellipse(50, 125, 15, 15);
-		fill(color(255, 255, 0));
-		ellipse(50, 175, 10, 10);
-		fill(color(0, 0, 255));
-		ellipse(50, 225, 5, 5);
+		fill(color(128, 0, 0)); // maroon triangle
+	    triangle(50.0f, 95.67f, 45.0f, 104.33f, 55.0f, 104.33f);
+	    // pg.triangle(x, y-off, x-TRI_SIZE, y+off, x+TRI_SIZE, y+off);
+		fill(255);
+		ellipse(50, 115, 10, 10);
+		fill(255);
+		rect(45, 125, 10, 10);
 		
-		fill(0, 0, 0);
-		text("5.0+ Magnitude", 75, 125);
-		text("4.0+ Magnitude", 75, 175);
-		text("Below 4.0", 75, 225);
+		fill(0);
+		text("City Marker", 75, 100);
+		text("Land Quake", 75, 115);
+		text("Ocean Quake", 75, 130);
+		textAlign(LEFT, CENTER);
+		text("Size ~ Magnitude", 50, 150);
+		
+		fill(color(255,255,0)); // yellow
+		ellipse(50, 180, 10, 10);
+		fill(color(0,0,255)); // blue
+		ellipse(50, 195, 10, 10);
+		fill(color(255,0,0)); // red
+		ellipse(50, 210, 10, 10);
+		fill(color(255,255,255)); // white
+		ellipse(50, 225, 10, 10);
+		stroke(0);
+		line(45,220,55,230);
+		line(55,220,45,230);
+		
+		fill(0);
+		text("Shallow", 75, 180);
+		text("Intermediate", 75, 195);
+		text("Deep", 75, 210);
+		text("Past Day", 75, 225);
 	}
 
 	
