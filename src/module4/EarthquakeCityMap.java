@@ -2,6 +2,11 @@ package module4;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.HashMap;
+import java.util.Set;
+import java.util.Iterator;
 
 import de.fhpotsdam.unfolding.UnfoldingMap;
 import de.fhpotsdam.unfolding.data.Feature;
@@ -44,7 +49,8 @@ public class EarthquakeCityMap extends PApplet {
 	
 
 	//feed with magnitude 2.5+ Earthquakes
-	private String earthquakesURL = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_week.atom";
+	// private String earthquakesURL = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_week.atom";
+	private String earthquakesURL;
 	
 	// The files containing city names and info and country names and info
 	private String cityFile = "city-data.json";
@@ -55,6 +61,7 @@ public class EarthquakeCityMap extends PApplet {
 	
 	// Markers for each city
 	private List<Marker> cityMarkers;
+	
 	// Markers for each earthquake
 	private List<Marker> quakeMarkers;
 
@@ -72,14 +79,14 @@ public class EarthquakeCityMap extends PApplet {
 			// map = new UnfoldingMap(this, 200, 50, 650, 600, new Google.GoogleMapProvider());
 			map = new UnfoldingMap(this, 200, 50, 650, 600, new Microsoft.RoadProvider());
 			// IF YOU WANT TO TEST WITH A LOCAL FILE, uncomment the next line
-		    //earthquakesURL = "2.5_week.atom";
+		    // earthquakesURL = "2.5_week.atom";
 		}
 		MapUtils.createDefaultEventDispatcher(this, map);
 		
 		// FOR TESTING: Set earthquakesURL to be one of the testing files by uncommenting
 		// one of the lines below.  This will work whether you are online or offline
-		//earthquakesURL = "test1.atom";
-		//earthquakesURL = "test2.atom";
+		// earthquakesURL = "test1.atom";
+		// earthquakesURL = "test2.atom";
 		
 		// WHEN TAKING THIS QUIZ: Uncomment the next line
 		//earthquakesURL = "quiz1.atom";
@@ -113,7 +120,7 @@ public class EarthquakeCityMap extends PApplet {
 	    }
 
 	    // could be used for debugging
-	    printQuakes();
+	    printQuakes(earthquakes);
 	 		
 	    // (3) Add markers to map
 	    //     NOTE: Country markers are not added to the map.  They are used
@@ -164,9 +171,11 @@ public class EarthquakeCityMap extends PApplet {
 	// set this "country" property already.  Otherwise it returns false.
 	private boolean isLand(PointFeature earthquake) {
 		
-		// IMPLEMENT THIS: loop over all countries to check if location is in any of them
-		
-		// TODO: Implement this method using the helper method isInCountry
+		// Loop over all countries to check if location is in any of them
+		for (Marker mk : countryMarkers) {
+			if (isInCountry(earthquake, mk))
+				return true;
+		}
 		
 		// not inside any country
 		return false;
@@ -178,12 +187,42 @@ public class EarthquakeCityMap extends PApplet {
 	// the quakes to count how many occurred in that country.
 	// Recall that the country markers have a "name" property, 
 	// And LandQuakeMarkers have a "country" property set.
-	private void printQuakes() 
+	private void printQuakes(List<PointFeature> earthquakes) 
 	{
-		// TODO: Implement this method
+		HashMap<String, Integer> quakeMap = new HashMap<String, Integer>();
+		String oceanQ = "OCEAN QUAKES";
+		
+		quakeMap.put(oceanQ, 0); // Initialize the Ocean quakes value
+		
+		for (PointFeature f: earthquakes) {
+			String countryName = (String)f.getProperty("country");
+			Integer quakeCount;
+			
+			if (countryName == null || countryName.isEmpty()) {
+				quakeCount = quakeMap.get(oceanQ);
+				quakeMap.replace(oceanQ, ++quakeCount);
+			}
+			else if (quakeMap.containsKey(countryName)) {
+				quakeCount = quakeMap.get(countryName);
+				quakeMap.replace(countryName, ++quakeCount);
+			}
+			else {
+				quakeMap.put(countryName, 1);
+			}
+		}
+		
+		// Print the quakes by country
+		Set quakeSet = quakeMap.entrySet();
+		Iterator it = quakeSet.iterator();
+		
+		System.out.println("Count of Earthquakes by country");
+		while (it.hasNext()) {
+			Map.Entry me = (Map.Entry) it.next();
+			
+			System.out.println(me.getKey() + ": " + me.getValue());
+		}
+		quakeMap.clear();
 	}
-	
-	
 	
 	// helper method to test whether a given earthquake is in a given country
 	// This will also add the country property to the properties of the earthquake 
