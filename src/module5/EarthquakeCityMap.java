@@ -16,6 +16,7 @@ import de.fhpotsdam.unfolding.marker.AbstractShapeMarker;
 import de.fhpotsdam.unfolding.marker.Marker;
 import de.fhpotsdam.unfolding.marker.MultiMarker;
 import de.fhpotsdam.unfolding.providers.Google;
+import de.fhpotsdam.unfolding.providers.Microsoft;
 import de.fhpotsdam.unfolding.providers.MBTilesMapProvider;
 import de.fhpotsdam.unfolding.utils.MapUtils;
 import parsing.ParseFeed;
@@ -39,7 +40,7 @@ public class EarthquakeCityMap extends PApplet {
 	private static final long serialVersionUID = 1L;
 
 	// IF YOU ARE WORKING OFFILINE, change the value of this variable to true
-	private static final boolean offline = true;
+	private static final boolean offline = false;
 	
 	/** This is where to find the local tiles, for working without an Internet connection */
 	public static String mbTilesString = "blankLight-1-3.mbtiles";
@@ -65,18 +66,19 @@ public class EarthquakeCityMap extends PApplet {
 	
 	// NEW IN MODULE 5
 	private CommonMarker lastSelected = null;
-	private CommonMarker lastClicked;
+	private CommonMarker lastClicked = null;
 	
 	@Override
 	public void setup() {		
 		// (1) Initializing canvas and map tiles
-		size(900, 700, OPENGL);
+		size(1000, 700, OPENGL);
 		if (offline) {
 		    map = new UnfoldingMap(this, 200, 50, 650, 600, new MBTilesMapProvider(mbTilesString));
 		    earthquakesURL = "2.5_week.atom";  // The same feed, but saved August 7, 2015
 		}
 		else {
-			map = new UnfoldingMap(this, 200, 50, 650, 600, new Google.GoogleMapProvider());
+			//map = new UnfoldingMap(this, 200, 50, 650, 600, new Google.GoogleMapProvider());
+			map = new UnfoldingMap(this, 200, 50, 800, 600, new Microsoft.AerialProvider());
 			// IF YOU WANT TO TEST WITH A LOCAL FILE, uncomment the next line
 		    earthquakesURL = "2.5_week.atom";
 		}
@@ -168,11 +170,55 @@ public class EarthquakeCityMap extends PApplet {
 	@Override
 	public void mouseClicked()
 	{
-		// TODO: Implement this method
-		// Hint: You probably want a helper method or two to keep this code
-		// from getting too long/disorganized
+		if (lastClicked != null) {
+			if (lastClicked.isInside(map, mouseX, mouseY)) {
+				lastClicked = null;
+				unhideMarkers();
+			}
+		}
+		else {
+			selectMarkerIfClicked(quakeMarkers);
+			selectMarkerIfClicked(cityMarkers);
+			if (lastClicked != null) {
+				hideOthers(quakeMarkers);
+				hideOthers(cityMarkers);
+			}
+		}
 	}
 	
+	private void selectMarkerIfClicked(List<Marker> markers)
+	{
+		for (Marker mk : markers) {
+			if (lastClicked == null && mk.isInside(map, mouseX, mouseY)) {
+				lastClicked = (CommonMarker) mk;
+			}
+		}
+	}
+	
+	private void hideOthers(List<Marker> markers)
+	{
+		boolean recomputeThreatCir = false;
+		double threatCir = 0;
+		
+		if (lastClicked instanceof EarthquakeMarker && markers.get(0) instanceof CityMarker) {
+			threatCir = ((EarthquakeMarker)lastClicked).threatCircle(); // compute it once
+		}
+		else if (lastClicked instanceof CityMarker && markers.get(0) instanceof EarthquakeMarker) {
+			recomputeThreatCir = true; // recompute the threat circle for every earthquake marker
+		}
+		for (Marker mk : markers) {
+			if (lastClicked == (CommonMarker)mk) {
+				continue;
+			}
+			double dist = mk.getDistanceTo(lastClicked.getLocation());
+			if (recomputeThreatCir) {
+				threatCir = ((EarthquakeMarker) mk).threatCircle();
+			}
+			if (dist > threatCir) {
+				mk.setHidden(true);
+			}
+		}
+	}
 	
 	// loop over and unhide all markers
 	private void unhideMarkers() {
