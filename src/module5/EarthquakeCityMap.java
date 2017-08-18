@@ -1,7 +1,11 @@
 package module5;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import de.fhpotsdam.unfolding.UnfoldingMap;
 import de.fhpotsdam.unfolding.data.Feature;
@@ -20,7 +24,7 @@ import processing.core.PApplet;
 /** EarthquakeCityMap
  * An application with an interactive map displaying earthquake data.
  * Author: UC San Diego Intermediate Software Development MOOC team
- * @author Your name here
+ * @author Vishal Aslot
  * Date: July 17, 2015
  * */
 public class EarthquakeCityMap extends PApplet {
@@ -35,13 +39,14 @@ public class EarthquakeCityMap extends PApplet {
 	private static final long serialVersionUID = 1L;
 
 	// IF YOU ARE WORKING OFFILINE, change the value of this variable to true
-	private static final boolean offline = false;
+	private static final boolean offline = true;
 	
 	/** This is where to find the local tiles, for working without an Internet connection */
 	public static String mbTilesString = "blankLight-1-3.mbtiles";
 	
 	//feed with magnitude 2.5+ Earthquakes
-	private String earthquakesURL = "http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_week.atom";
+	//private String earthquakesURL = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_week.atom";
+	private String earthquakesURL;
 	
 	// The files containing city names and info and country names and info
 	private String cityFile = "city-data.json";
@@ -59,9 +64,10 @@ public class EarthquakeCityMap extends PApplet {
 	private List<Marker> countryMarkers;
 	
 	// NEW IN MODULE 5
-	private CommonMarker lastSelected;
+	private CommonMarker lastSelected = null;
 	private CommonMarker lastClicked;
 	
+	@Override
 	public void setup() {		
 		// (1) Initializing canvas and map tiles
 		size(900, 700, OPENGL);
@@ -72,7 +78,7 @@ public class EarthquakeCityMap extends PApplet {
 		else {
 			map = new UnfoldingMap(this, 200, 50, 650, 600, new Google.GoogleMapProvider());
 			// IF YOU WANT TO TEST WITH A LOCAL FILE, uncomment the next line
-		    //earthquakesURL = "2.5_week.atom";
+		    earthquakesURL = "2.5_week.atom";
 		}
 		MapUtils.createDefaultEventDispatcher(this, map);
 		
@@ -105,7 +111,7 @@ public class EarthquakeCityMap extends PApplet {
 	    }
 
 	    // could be used for debugging
-	    printQuakes();
+	    printQuakes(earthquakes);
 	 		
 	    // (3) Add markers to map
 	    //     NOTE: Country markers are not added to the map.  They are used
@@ -115,7 +121,7 @@ public class EarthquakeCityMap extends PApplet {
 	    
 	}  // End setup
 	
-	
+	@Override
 	public void draw() {
 		background(0);
 		map.draw();
@@ -145,7 +151,13 @@ public class EarthquakeCityMap extends PApplet {
 	// 
 	private void selectMarkerIfHover(List<Marker> markers)
 	{
-		// TODO: Implement this method
+		for (Marker mk : markers) {
+			if (mk.isInside(map, mouseX, mouseY)) {
+				mk.setSelected(true);
+				lastSelected = (CommonMarker)mk;
+				break;
+			}
+		}
 	}
 	
 	/** The event handler for mouse clicks
@@ -257,26 +269,40 @@ public class EarthquakeCityMap extends PApplet {
 	}
 	
 	// prints countries with number of earthquakes
-	private void printQuakes() {
-		int totalWaterQuakes = quakeMarkers.size();
-		for (Marker country : countryMarkers) {
-			String countryName = country.getStringProperty("name");
-			int numQuakes = 0;
-			for (Marker marker : quakeMarkers)
-			{
-				EarthquakeMarker eqMarker = (EarthquakeMarker)marker;
-				if (eqMarker.isOnLand()) {
-					if (countryName.equals(eqMarker.getStringProperty("country"))) {
-						numQuakes++;
-					}
-				}
+	private void printQuakes(List<PointFeature> earthquakes) {
+		HashMap<String, Integer> quakeMap = new HashMap<String, Integer>();
+		String oceanQ = "OCEAN QUAKES";
+		
+		quakeMap.put(oceanQ, 0); // Initialize the Ocean quakes value
+		
+		for (PointFeature f: earthquakes) {
+			String countryName = (String)f.getProperty("country");
+			Integer quakeCount;
+			
+			if (countryName == null || countryName.isEmpty()) {
+				quakeCount = quakeMap.get(oceanQ);
+				quakeMap.replace(oceanQ, ++quakeCount);
 			}
-			if (numQuakes > 0) {
-				totalWaterQuakes -= numQuakes;
-				System.out.println(countryName + ": " + numQuakes);
+			else if (quakeMap.containsKey(countryName)) {
+				quakeCount = quakeMap.get(countryName);
+				quakeMap.replace(countryName, ++quakeCount);
+			}
+			else {
+				quakeMap.put(countryName, 1);
 			}
 		}
-		System.out.println("OCEAN QUAKES: " + totalWaterQuakes);
+		
+		// Print the quakes by country
+		Set quakeSet = quakeMap.entrySet();
+		Iterator it = quakeSet.iterator();
+		
+		System.out.println("Count of Earthquakes by country");
+		while (it.hasNext()) {
+			Map.Entry me = (Map.Entry) it.next();
+			
+			System.out.println(me.getKey() + ": " + me.getValue());
+		}
+		quakeMap.clear();
 	}
 	
 	

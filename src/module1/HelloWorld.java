@@ -83,6 +83,20 @@ public class HelloWorld extends PApplet
 	public void draw() {
 		map1.draw();
 		map2.draw();
+		
+		fill(255,255,255);
+		rect(100,100,25,25);
+		fill(color(200,200,200));
+		rect(100,150,25,25);
+	}
+	
+	public void mousePressed() {
+		if (mouseX > 100 && mouseX < 125 && mouseY > 100 && mouseY < 125) {
+			background(255,255,255);
+		}
+		if (mouseX > 100 && mouseX < 125 && mouseY > 150 && mouseY < 175) {
+			background(200,200,200);
+		}
 	}
 
 	
