@@ -2,6 +2,7 @@ package module6;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import de.fhpotsdam.unfolding.UnfoldingMap;
@@ -44,7 +45,8 @@ public class EarthquakeCityMap extends PApplet {
 	
 
 	//feed with magnitude 2.5+ Earthquakes
-	private String earthquakesURL = "http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_week.atom";
+	//private String earthquakesURL = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_week.atom";
+	private String earthquakesURL;
 	
 	// The files containing city names and info and country names and info
 	private String cityFile = "city-data.json";
@@ -82,7 +84,7 @@ public class EarthquakeCityMap extends PApplet {
 		// FOR TESTING: Set earthquakesURL to be one of the testing files by uncommenting
 		// one of the lines below.  This will work whether you are online or offline
 		//earthquakesURL = "test1.atom";
-		//earthquakesURL = "test2.atom";
+		earthquakesURL = "test2.atom";
 		
 		// Uncomment this line to take the quiz
 		//earthquakesURL = "quiz2.atom";
@@ -124,6 +126,10 @@ public class EarthquakeCityMap extends PApplet {
 	    map.addMarkers(quakeMarkers);
 	    map.addMarkers(cityMarkers);
 	    
+	    System.out.println("Printing top 5 earthquakes by magnitude");
+	    sortAndPrint(5);
+	    System.out.println("\n\nPrinting top 20 earthquakes by magnitude");
+	    sortAndPrint(20);
 	    
 	}  // End setup
 	
@@ -134,11 +140,22 @@ public class EarthquakeCityMap extends PApplet {
 		addKey();
 		
 	}
-	
-	
-	// TODO: Add the method:
-	//   private void sortAndPrint(int numToPrint)
-	// and then call that method from setUp
+
+	private void sortAndPrint(int numToPrint)
+	{
+		EarthquakeMarker[] quakeMarkersArr = new EarthquakeMarker[quakeMarkers.size()];
+		quakeMarkersArr = quakeMarkers.toArray(quakeMarkersArr);
+		
+		Arrays.sort(quakeMarkersArr);
+		
+		numToPrint = min(numToPrint, quakeMarkersArr.length);
+		for (EarthquakeMarker mk : quakeMarkersArr) {
+			if (numToPrint > 0) {
+				System.out.println(mk.getStringProperty("title"));
+				numToPrint--;
+			}
+		}
+	}
 	
 	/** Event handler that gets called automatically when the 
 	 * mouse moves.
