@@ -153,6 +153,8 @@ public class EarthquakeCityMap extends PApplet {
 	// 
 	private void selectMarkerIfHover(List<Marker> markers)
 	{
+		if (lastSelected != null) return; // So we don't select more than one
+		
 		for (Marker mk : markers) {
 			if (mk.isInside(map, mouseX, mouseY)) {
 				mk.setSelected(true);
@@ -189,7 +191,7 @@ public class EarthquakeCityMap extends PApplet {
 	private void selectMarkerIfClicked(List<Marker> markers)
 	{
 		for (Marker mk : markers) {
-			if (lastClicked == null && mk.isInside(map, mouseX, mouseY)) {
+			if (lastClicked == null && !mk.isHidden() && mk.isInside(map, mouseX, mouseY)) {
 				lastClicked = (CommonMarker) mk;
 			}
 		}

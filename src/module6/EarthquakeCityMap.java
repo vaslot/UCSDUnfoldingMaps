@@ -2,7 +2,6 @@ package module6;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import de.fhpotsdam.unfolding.UnfoldingMap;
@@ -67,6 +66,9 @@ public class EarthquakeCityMap extends PApplet {
 	private CommonMarker lastSelected;
 	private CommonMarker lastClicked;
 	
+	// Search string to look for earthquakes in a certain country
+	private StringBuilder searchStr;
+	
 	public void setup() {		
 		// (1) Initializing canvas and map tiles
 		size(900, 700, OPENGL);
@@ -84,10 +86,10 @@ public class EarthquakeCityMap extends PApplet {
 		// FOR TESTING: Set earthquakesURL to be one of the testing files by uncommenting
 		// one of the lines below.  This will work whether you are online or offline
 		//earthquakesURL = "test1.atom";
-		earthquakesURL = "test2.atom";
+		//earthquakesURL = "test2.atom";
 		
 		// Uncomment this line to take the quiz
-		//earthquakesURL = "quiz2.atom";
+		earthquakesURL = "quiz2.atom";
 		
 		
 		// (2) Reading in earthquake data and geometric properties
@@ -130,6 +132,9 @@ public class EarthquakeCityMap extends PApplet {
 	    sortAndPrint(5);
 	    System.out.println("\n\nPrinting top 20 earthquakes by magnitude");
 	    sortAndPrint(20);
+	    
+	    // Setup the search string so that we can implement showing earthquakes by country names
+	    searchStr = new StringBuilder(); // Initial capacity of 16 characters
 	    
 	}  // End setup
 	
@@ -214,6 +219,67 @@ public class EarthquakeCityMap extends PApplet {
 		}
 	}
 	
+	@Override
+	public void keyPressed()
+	{
+		if (key == CODED)  {
+			return;
+		}
+		
+		if ((key >= 'A' && key <= 'Z') || 
+		    (key >= 'a' && key <= 'z') ||
+		     key == ',' || key == '\'' ||
+		     key == ' ' || key == TAB) {
+			searchStr.append(key);
+		}
+		if (key == BACKSPACE || key == DELETE) {
+			searchStr.deleteCharAt(searchStr.length() - 1); // delete the last character
+		}
+		if (key == ENTER) {
+			System.out.println("You asked to search for earthquakes in " + searchStr);
+			showMarkersByCountry();
+			searchStr.delete(0, searchStr.length());
+		}
+	}
+	
+	private void showMarkersByCountry()
+	{
+		boolean foundOne = false;
+		
+		String str = new String(searchStr);
+		if (str == null || str.equals("")) {
+			unhideMarkers();
+			return;
+		}
+		// if the string doesn't match any country, don't hide anything
+		for (Marker mk : countryMarkers) {
+			if (str.equals(mk.getStringProperty("name")) ||
+				"ocean".equals(str)) {
+				foundOne = true;
+				break;
+			}
+		}
+		if (!foundOne)
+			return;
+		for (Marker mk : quakeMarkers) {	
+			if (str.equals(mk.getStringProperty("country")) ||
+				("ocean".equals(str) && !((EarthquakeMarker)mk).isOnLand())) {
+				mk.setHidden(false);
+			}
+			else {
+				mk.setHidden(true);
+			}
+		}
+		for (Marker mk : cityMarkers) {	
+			if (str.equals(mk.getStringProperty("country"))) {
+				mk.setHidden(false);
+			}
+			else {
+				mk.setHidden(true);
+			}
+		}
+	}
+	
 	// Helper method that will check if a city marker was clicked on
 	// and respond appropriately
 	private void checkCitiesForClick()
@@ -238,7 +304,7 @@ public class EarthquakeCityMap extends PApplet {
 				}
 				return;
 			}
-		}		
+		}
 	}
 	
 	// Helper method that will check if an earthquake marker was clicked on
